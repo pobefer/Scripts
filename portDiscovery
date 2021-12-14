@@ -1,0 +1,41 @@
+#!/bin/bash
+
+target=$1;
+echo -e "[+] Scanning ports for $target";
+nmap -p- -sS --min-rate 5000 -n -Pn $target -oG allPorts &>/dev/null;
+extractPorts allPorts > ports;
+rm allPorts -f;
+bat ports | grep "ports: " | cut -d ":" -f2 | tr -d ' ' > ports2;
+rm ports -f;
+puertos=$(< ports2);
+rm ports2 -f;
+echo -e "[+] Scanning ports $puertos";
+nmap -sCV -p"$puertos" -n $target -oN targeted &>/dev/null;
+echo -e "[+] Port discover in targeted";
+
+if grep -q "80/tcp" targeted; then
+  echo -e "[+] HTTP detected"
+  echo -e "[+] Scanning http://$target"
+  whatweb $target -v > webScan;
+  echo -e "[+] Web scanned in webScan"
+fi
+
+touch resumen
+echo "[+] Resumen para $target" >> resumen;
+if grep -q "80/tcp" targeted; then
+  echo "[-]----> HTTP on :->" >> resumen;
+  echo "[-]----> $(bat targeted | grep 'http ')" >> resumen;
+  if grep -q "WordPress" webScan; then
+    echo "[-]-------> WordPress discover" >> resumen;
+  fi
+  if grep -q "nginx" webScan; then
+    echo "[-]-------> nginx discover" >> resumen;
+  fi
+fi
+if grep -q "ssh" targeted; then
+  echo "[+]----> SSH on :->" >> resumen;
+  grep 'ssh ' targeted | while read -r line ; do
+    echo "[-]-------> $line" >> resumen;
+  done
+fi
+echo "[+] Resumen para $target en resumen"

